@@ -1,1 +1,2 @@
+[![Waffle.io - Columns and their card count](https://badge.waffle.io/grosoon/cs213-grinnell-parallel-search.png?columns=all)](https://waffle.io/grosoon/cs213-grinnell-parallel-search?utm_source=badge)
 # cs213-grinnell-parallel-search
