@@ -1,16 +1,20 @@
 CC = clang
 CFLAGS = -g
 
-all: search test file-search
+all: queue search file_search test
 
-clean: 
+clean:
+	rm -f queue 
 	rm -f search
 	rm -f test
-	rm -f file-search
+	rm -f file_search	
 
-search: search.c search.h queue.c queue.h 
+queue: queue.h queue.c
+	$(CC) $(CFLAGS) -o queue queue.c
+search: search.c queue.c queue.h 
 	$(CC) $(CLFAGS) -o search search.c queue.c 
-test: test.c file-search.c search.c file-search.h
-	$(CC) $(CFLAGS) -o test test.c file-search.c
-file-search: file-search.c search.c queue.c queue.h file-search.h search.h
-	$(CC) $(CFLAGS) -o file-search file-search.c queue.c queue.h search.c search.h 
+file_search: file_search.c search.c search.h queue.h
+	$(CC) $(CFLAGS) -o file_search file_search.c search.c queue.c
+test: test.c file-search.c search.c file_search.h
+	$(CC) $(CFLAGS) -o test test.c file_search.c 
+

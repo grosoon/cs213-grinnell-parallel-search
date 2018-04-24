@@ -1,5 +1,5 @@
-include "search.h"
-include "queue.h"
+#include "search.h"
+#include "queue.h"
 
 int main(int argc, char** argv){
   if(argc != 2){
