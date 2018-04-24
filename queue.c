@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "queue.h"
 
 
@@ -30,7 +31,7 @@ void add_to_queue(queue_t *queue, char* file_name){
 to_recurse_t* get_next(queue_t *queue){
   to_recurse_t* ret = queue->front;
   if(ret != NULL){
-    queue->first = queue->front->next;
+    queue->front = queue->front->next;
   }
   return ret;
 }

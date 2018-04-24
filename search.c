@@ -4,13 +4,18 @@
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+
 
 queue_t* queue; //The backlog queue
-pthread_mutex_lock q_lock; //The queue lock
+pthread_mutex_t q_lock; //The queue lock
 
 int max_threads; //the thread limit
 
-pthread_mutex_lock count_lock; //Lock to protect # of threads running
+pthread_mutex_t count_lock; //Lock to protect # of threads running
 int cur_threads; //# of threads running
 
 //Args for each search thread
@@ -67,19 +72,19 @@ void* search_dir(void* args){
 
     //If it is a directory set dir to true
     if (S_ISDIR(file_info.st_mode)){
-   	  dir = true;
+      dir = true;
     }
   
     //Check if the current file/directory name contains the search string
-    if (strstr (cur_file->d_name) != NULL){
-	  printf("%s \n", cur_file->d_name); //Just print the file name for now.
+    if (strstr (cur_file->d_name,search_str) != NULL){
+      printf("%s \n", cur_file->d_name); //Just print the file name for now.
     }
 
     //If the element is a directory do the thread check
 
     if (dir){
       //Lock the count
-      pthread_mutext_lock (&count_lock);
+      pthread_mutex_lock (&count_lock);
 
 
       if (cur_threads >= max_threads){
@@ -96,15 +101,15 @@ void* search_dir(void* args){
         pthread_t* dir_thread;
       
         thread_args_t* dir_thread_args = malloc (sizeof(thread_args_t));
-        dir_thread_args-> file_name = d_name;
+        dir_thread_args-> file_name = cur_file->d_name;
       
         //Create the new thread to run search_dir
         pthread_create (dir_thread, NULL, search_dir, dir_thread_args);
         cur_threads++;
       }
 
-     //Unlock the count
-     pthread_mutex_unlock (&count_lock);
+      //Unlock the count
+      pthread_mutex_unlock (&count_lock);
     }
     // Continue on our way through the directory
     cur_file = readdir(cur_dir);
@@ -123,9 +128,15 @@ void* search_dir(void* args){
     free(next_args);
     free(next_dir);
   }
+
+  //The thread is dead now
+  
   free(args);
+
+  //Decrement the number of threads running
   pthread_mutex_lock(&count_lock);
   cur_threads --;
   pthread_mutex_unlock(&count_lock);
 
+  return NULL;
 }
