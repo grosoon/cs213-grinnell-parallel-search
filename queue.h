@@ -1,5 +1,4 @@
 
-
 typedef struct to_recurse {
   char *file_name;
   struct to_recurse *next;

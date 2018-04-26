@@ -1,6 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
-//#include "queue.h"
 #include <sys/types.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -8,7 +8,62 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include "search.h"
+
+typedef struct to_recurse {
+  char *file_name;
+  struct to_recurse *next;
+} to_recurse_t;
+
+
+typedef struct queue {
+  to_recurse_t *front;
+  to_recurse_t *back;
+}queue_t;
+
+to_recurse_t* new_to_recurse(char* file_name) {
+  to_recurse_t *new = malloc(sizeof(to_recurse_t));
+  new->file_name = file_name;
+  new->next = NULL;
+  return new;
+}
+
+
+queue_t* init_queue(){
+  queue_t* ret = malloc(sizeof(queue_t));
+  ret->front = NULL;
+  ret->back = NULL;
+  return ret;
+}
+
+void add_to_queue(queue_t *queue, char* file_name){
+  to_recurse_t *new = new_to_recurse(file_name); 
+  if(queue->front == NULL){
+    queue->front = new;
+    queue->back = new;
+  } else {
+    queue->back->next = new;
+  }
+}
+
+to_recurse_t* get_next(queue_t *queue){
+  to_recurse_t* ret = queue->front;
+  if(ret != NULL){
+    queue->front = queue->front->next;
+  }
+  return ret;
+}
+
+void free_queue(queue_t *queue){
+  to_recurse_t* cur = queue->front;
+  to_recurse_t* next = queue->front;
+  while(cur != NULL){
+    next = cur->next;
+    free(cur);
+    cur = next;
+  }
+  free(queue);
+}
+
 
 queue_t* queue; //The backlog queue
 pthread_mutex_t q_lock; //The queue lock
@@ -26,27 +81,6 @@ typedef struct thread_args{
 char* search_str;
 
 
-//Set up and run the search
-void start_search(char* file_name, char* str){
-
-  //init stuff
-  queue = init_queue();
-
-  //add in code to get num of cpus
-
-  max_threads = 2 * sysconf(_SC_NPROCESSORS_ONLN); //Eventually replace with calcuation result
-  cur_threads = 0;
-
-  //Init the locks
-  pthread_mutex_init(&q_lock, NULL);
-  pthread_mutex_init(&count_lock, NULL);
-  
-  //Initialize search string global
-  search_str = str;
-  
-
-}
-
 //Threaded searching function
 void* search_dir(void* args){
   //Unpack args
@@ -58,24 +92,27 @@ void* search_dir(void* args){
   DIR* cur_dir = opendir(file_name); //Add some error checking 
   
   //Get a directory entry  
-  struct dirent* cur_file = readdir(cur_dir); //Add error checking
+  struct dirent* cur_file = (struct dirent*)malloc(sizeof(struct dirent));
+ 	cur_file = readdir(cur_dir); //Add error checking
   
   //Access file metadata
-  struct stat file_info;
+  struct stat* file_info = (struct stat*) malloc (sizeof(struct stat));
 
   //Loop our way through the directory
   while(cur_file != NULL){
-    stat(cur_file->d_name, &file_info);
+    stat(cur_file->d_name, file_info);
 
     //Get whether or not file is a dir
     bool dir = false; //Initially assume all are not
 
     //If it is a directory set dir to true
-    if (S_ISDIR(file_info.st_mode)){
+    if (S_ISDIR(file_info->st_mode)){
       dir = true;
     }
   
-    //Check if the current file/directory name contains the search string
+    //Check if the current file/directory name contains the
+    //search string
+		printf ("Current entry is %s\n", cur_file->d_name);
     if (strstr (cur_file->d_name,search_str) != NULL){
       printf("%s \n", cur_file->d_name); //Just print the file name for now.
     }
@@ -140,3 +177,43 @@ void* search_dir(void* args){
 
   return NULL;
 }
+
+//Set up and run the search
+void start_search(char* file_name, char* str){
+
+  //init stuff
+  queue = init_queue();
+
+  //add in code to get num of cpus
+
+  max_threads = 2 * sysconf(_SC_NPROCESSORS_ONLN); //Eventually replace with calcuation result
+  cur_threads = 0;
+
+  //Init the locks
+  pthread_mutex_init(&q_lock, NULL);
+  pthread_mutex_init(&count_lock, NULL);
+  
+  //Initialize search string global
+  search_str = str;
+  
+	thread_args_t* args = malloc (sizeof (thread_args_t));
+	args->file_name = file_name;
+	
+	search_dir (args);
+
+}
+
+
+//Main function
+int main(int argc, char** argv){
+  if(argc != 2){
+    fprintf(stderr, "Usage: %s <search term>", argv[0]);
+    exit(EXIT_FAILURE);
+  }
+
+  
+  start_search(".", argv[1]);
+	
+	return 0;
+}
+
