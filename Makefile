@@ -10,7 +10,7 @@ clean:
 	#rm -f test
 	#rm -f file_search	
 pfs: pfs.c
-	$(CC) $(CFLAGS) -o pfs pfs.c
+	$(CC) $(CFLAGS) -o pfs pfs.c -lpthread
 #queue: queue.h queue.c
 #	$(CC) $(CFLAGS) -o queue queue.c
 #search: search.c queue.c #queue.h 
