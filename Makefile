@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -g
+CFLAGS = -Wall
 
 all: pfs #queue search file_search test
 
