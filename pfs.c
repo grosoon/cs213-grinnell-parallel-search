@@ -21,6 +21,7 @@ typedef struct queue {
 	to_recurse_t *back;
 }queue_t;
 
+//Set up the to_recurse_t structs (queue nodes)
 to_recurse_t* new_to_recurse(char* file_name) {
 	to_recurse_t *new = malloc(sizeof(to_recurse_t));
 	new->file_name = file_name;
@@ -28,7 +29,7 @@ to_recurse_t* new_to_recurse(char* file_name) {
 	return new;
 }
 
-
+//Set up a queue
 queue_t* init_queue(){
 	queue_t* ret = malloc(sizeof(queue_t));
 	ret->front = NULL;
@@ -36,6 +37,7 @@ queue_t* init_queue(){
 	return ret;
 }
 
+//Add a string to a node in the queue
 void add_to_queue(queue_t *queue, char* file_name){
 	to_recurse_t *new = new_to_recurse(file_name); 
 	if(queue->front == NULL){
@@ -46,6 +48,7 @@ void add_to_queue(queue_t *queue, char* file_name){
 	}
 }
 
+//Get the next element in the queue
 to_recurse_t* get_next(queue_t *queue){
 	to_recurse_t* ret = queue->front;
 	if(ret != NULL){
@@ -54,6 +57,7 @@ to_recurse_t* get_next(queue_t *queue){
 	return ret;
 }
 
+//Free the queue
 void free_queue(queue_t *queue){
 	to_recurse_t* cur = queue->front;
 	to_recurse_t* next = queue->front;
