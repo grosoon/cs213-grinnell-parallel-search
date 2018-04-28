@@ -117,15 +117,7 @@ void* search_dir(void* args){
     
 		//Store the info about the file in a stat
 		stat(cur_file->d_name, file_stat);
-
-		//Get whether or not file is a dir
-		bool dir = false; //Initially assume all are not
-
-		//If it is a directory set dir to true
-		if ((file_stat->st_mode &S_IFDIR)){
-			dir = true;
-		}
-  
+		
 		//Check if the current file/directory name contains the
 		//search string
 		// printf ("Current entry is %s\n", cur_file->d_name);
@@ -137,7 +129,7 @@ void* search_dir(void* args){
 
 		//If the element is a directory do the thread check
 
-		if (dir){
+		if ((file_stat->st_mode &S_IFDIR)){
 			//    printf("Cur_file is a directory\n");
 			//Lock the count
 			pthread_mutex_lock (&count_lock);
