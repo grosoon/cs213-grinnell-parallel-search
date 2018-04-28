@@ -202,6 +202,8 @@ void start_search(char* file_name, char* str){
 	//add in code to get num of cpus
 	//Eventually replace with calcuation result
 	max_threads = 2 * sysconf(_SC_NPROCESSORS_ONLN); 
+	printf("Max threads: %d\n", max_threads);
+	
 	cur_threads = 0;
 
 	//Init the locks
