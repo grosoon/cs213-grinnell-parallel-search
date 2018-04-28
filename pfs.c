@@ -183,7 +183,7 @@ void* search_dir(void* args){
 
 	//The thread is dead now
   
-	free(args);
+	free(thread_args);
 
 	//Decrement the number of threads running
 	pthread_mutex_lock(&count_lock);
