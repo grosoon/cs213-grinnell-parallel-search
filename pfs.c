@@ -93,6 +93,8 @@ void* search_dir(void* args){
 	char* dir_name = thread_args-> file_name;
 	//free(args);  MIght need to be freeing thread_args instead
 
+        //printf("Searching %s\n", dir_name);
+
 	//Open a directory from the file name
 	DIR* cur_dir = opendir(dir_name);
 	if (cur_dir == NULL){
@@ -101,7 +103,9 @@ void* search_dir(void* args){
 	}
 	//Get a directory entry  
 	struct dirent* cur_file = (struct dirent*)malloc(sizeof(struct dirent));
+        //readdir(cur_dir);
 	cur_file = readdir(cur_dir);
+    
   
 	//Access and store file metadata
 	struct stat* file_stat = (struct stat*) malloc (sizeof(struct stat));
@@ -114,6 +118,10 @@ void* search_dir(void* args){
 		/*if (strstr(cur_file->d_name, "..") == NULL){
 		continue;
 		}*/ 
+
+                if(!(strcmp(cur_file->d_name, dir_name) == 0)){
+                  
+                
     
 		//Store the info about the file in a stat
 		stat(cur_file->d_name, file_stat);
@@ -128,7 +136,7 @@ void* search_dir(void* args){
   
 		//Check if the current file/directory name contains the
 		//search string
-		// printf ("Current entry is %s\n", cur_file->d_name);
+		//printf ("Current entry is %s in %s\n", cur_file->d_name, dir_name);
 		//printf("Search string is %s\n", search_str);
 		if (strstr (cur_file->d_name,search_str) != NULL){
 			//Just print the file name for now.
@@ -158,7 +166,7 @@ void* search_dir(void* args){
       
 				thread_args_t* dir_thread_args = malloc (sizeof(thread_args_t));
 				dir_thread_args-> file_name = cur_file->d_name;
-				printf("New thread to search %s\n", cur_file->d_name);
+				//printf("New thread to search %s\n", cur_file->d_name);
 				//Create the new thread to run search_dir
 				pthread_create (&dir_thread, NULL, search_dir, dir_thread_args);
 				cur_threads++;
@@ -169,7 +177,7 @@ void* search_dir(void* args){
 		}
 
 		// Continue on our way through the directory
-
+		}
 		cur_file = readdir(cur_dir);
 	
 	}
