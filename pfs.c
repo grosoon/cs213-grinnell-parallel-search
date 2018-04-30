@@ -125,15 +125,7 @@ void* search_dir(void* args){
     
 		//Store the info about the file in a stat
 		stat(cur_file->d_name, file_stat);
-
-		//Get whether or not file is a dir
-		bool dir = false; //Initially assume all are not
-
-		//If it is a directory set dir to true
-		if ((file_stat->st_mode &S_IFDIR)){
-			dir = true;
-		}
-  
+		
 		//Check if the current file/directory name contains the
 		//search string
 		//printf ("Current entry is %s in %s\n", cur_file->d_name, dir_name);
@@ -145,7 +137,7 @@ void* search_dir(void* args){
 
 		//If the element is a directory do the thread check
 
-		if (dir){
+		if ((file_stat->st_mode &S_IFDIR)){
 			//    printf("Cur_file is a directory\n");
 			//Lock the count
 			pthread_mutex_lock (&count_lock);
@@ -199,7 +191,7 @@ void* search_dir(void* args){
 
 	//The thread is dead now
   
-	free(args);
+	free(thread_args);
 
 	//Decrement the number of threads running
 	pthread_mutex_lock(&count_lock);
@@ -218,6 +210,8 @@ void start_search(char* file_name, char* str){
 	//add in code to get num of cpus
 	//Eventually replace with calcuation result
 	max_threads = 2 * sysconf(_SC_NPROCESSORS_ONLN); 
+	printf("Max threads: %d\n", max_threads);
+	
 	cur_threads = 0;
 
 	//Init the locks
