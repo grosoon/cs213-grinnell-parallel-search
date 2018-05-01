@@ -107,19 +107,27 @@ void* search_dir(void* args){
   cur_file = readdir(cur_dir);
     
   
-  //Access and store file metadata
-  struct stat* file_stat = (struct stat*) malloc (sizeof(struct stat));
+
 
   //Loop our way through the directory
   while(cur_file != NULL){
-    
+      //Access and store file metadata
+    struct stat file_stat;
     //Prevent searching in .. -> STILL NOT WORKING WHEN NOT RUN IN THE PROJECT DIR
-    if(!((strcmp(cur_file->d_name, dir_name) == 0)||(strcmp(dir_name, "..") ==0))){
+    if(!((strcmp(cur_file->d_name, dir_name) == 0)||(strcmp(cur_file->d_name, "..") == 0) ||(strcmp(cur_file->d_name, ".") == 0) )){
                   
                 
-    
+      char cur_path[500];
+      strcpy(cur_path, dir_name);
+      strcat(cur_path, "/");
+      strcat(cur_path, cur_file->d_name);
       //Store the info about the file in a stat
-      stat(cur_file->d_name, file_stat);
+      
+      if(stat(cur_path, &file_stat) != 0){
+        printf("%s\n", cur_path);
+        perror("stat failed");
+        exit(2);
+      }
 		
       //Check if the current file/directory name contains the
       //search string
@@ -132,7 +140,7 @@ void* search_dir(void* args){
 
       //If the element is a directory do the thread check
 
-      if ((file_stat->st_mode &S_IFDIR)){
+      if (S_ISDIR(file_stat.st_mode)){
         printf("%s is a directory\n", cur_file->d_name);
         //Lock the count
         pthread_mutex_lock (&count_lock);
@@ -143,7 +151,7 @@ void* search_dir(void* args){
           pthread_mutex_lock (&q_lock);
 
           //Add file name to queue
-          add_to_queue (queue, cur_file->d_name);
+          add_to_queue (queue, cur_path);
 
           //Unlock queue
           pthread_mutex_unlock (&q_lock);
@@ -152,7 +160,7 @@ void* search_dir(void* args){
           pthread_t dir_thread;
       
           thread_args_t* dir_thread_args = malloc (sizeof(thread_args_t));
-          dir_thread_args-> file_name = cur_file->d_name;
+          dir_thread_args-> file_name = cur_path;
           //printf("New thread to search %s\n", cur_file->d_name);
           //Create the new thread to run search_dir
           pthread_create (&dir_thread, NULL, search_dir, dir_thread_args);
@@ -166,6 +174,7 @@ void* search_dir(void* args){
       // Continue on our way through the directory
     }
     cur_file = readdir(cur_dir);
+
 	
   }
 
