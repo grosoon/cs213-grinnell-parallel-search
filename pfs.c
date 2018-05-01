@@ -24,7 +24,8 @@ typedef struct queue {
 //Set up the to_recurse_t structs (queue nodes)
 to_recurse_t* new_to_recurse(char* file_name) {
   to_recurse_t *new = malloc(sizeof(to_recurse_t));
-  new->file_name = file_name;
+  new->file_name = malloc(sizeof(char)*500);
+  strcpy(new->file_name, file_name);
   new->next = NULL;
   return new;
 }
@@ -90,19 +91,20 @@ char* search_str;
 void* search_dir(void* args){
   //Unpack args
   thread_args_t* thread_args = (thread_args_t*) args;
-  char* dir_name = thread_args-> file_name;
-  //free(args);  MIght need to be freeing thread_args instead
+  char* dir_name = malloc(sizeof(char)*500);
+  strcpy(dir_name, thread_args-> file_name);
+  free(args);
 
   //printf("Searching %s\n", dir_name);
 
   //Open a directory from the file name
   DIR* cur_dir = opendir(dir_name);
   if (cur_dir == NULL){
-    fprintf(stderr,"Unable to open directory %s \n", dir_name);
+    fprintf(stderr,"Unable to opn directory %s \n", dir_name);
     exit (EXIT_FAILURE);
   }
   //Get a directory entry  
-  struct dirent* cur_file = (struct dirent*)malloc(sizeof(struct dirent));
+  struct dirent* cur_file = malloc(sizeof(struct dirent));
   //readdir(cur_dir);
   cur_file = readdir(cur_dir);
     
@@ -152,16 +154,16 @@ void* search_dir(void* args){
 
           //Add file name to queue
           add_to_queue (queue, cur_path);
-
+          printf("putting %s on queue\n", cur_path);
           //Unlock queue
           pthread_mutex_unlock (&q_lock);
         } else{
           //Create a new thread and execute the search function
           pthread_t dir_thread;
       
-          thread_args_t* dir_thread_args = malloc (sizeof(thread_args_t));
-          dir_thread_args-> file_name = cur_path;
-          //printf("New thread to search %s\n", cur_file->d_name);
+          thread_args_t* dir_thread_args = malloc(sizeof(thread_args_t));
+          strcpy(dir_thread_args-> file_name, cur_path);
+          printf("New thread to search %s\n", cur_path);
           //Create the new thread to run search_dir
           pthread_create (&dir_thread, NULL, search_dir, dir_thread_args);
           cur_threads++;
@@ -177,25 +179,25 @@ void* search_dir(void* args){
 
 	
   }
+  free(cur_file);
 
   //Close the current directory when done
 
   closedir(cur_dir);
+  free(dir_name);
   //Check if the queue is empty
   pthread_mutex_lock(&q_lock);
   to_recurse_t* next_dir = get_next(queue);
   pthread_mutex_unlock(&q_lock);
   if(next_dir != NULL){
     thread_args_t* next_args = malloc(sizeof(thread_args_t));
-    next_args->file_name = next_dir->file_name;
+    strcpy(next_args->file_name, next_dir->file_name);
+    printf("got %s for queue\n", next_args->file_name);
     search_dir(next_args);
-    free(next_args);
+    free(next_dir->file_name);
     free(next_dir);
   }
-
-  //The thread is dead now
-  
-  free(thread_args);
+ 
 
   //Decrement the number of threads running
   pthread_mutex_lock(&count_lock);
