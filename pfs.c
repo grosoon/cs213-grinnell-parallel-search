@@ -93,7 +93,7 @@ void* search_dir(void* args){
   char* dir_name = thread_args-> file_name;
   //free(args);  MIght need to be freeing thread_args instead
 
-  printf("Searching %s\n", dir_name);
+  //printf("Searching %s\n", dir_name);
 
   //Open a directory from the file name
   DIR* cur_dir = opendir(dir_name);
@@ -113,12 +113,7 @@ void* search_dir(void* args){
   //Loop our way through the directory
   while(cur_file != NULL){
     
-    //Prevent searching in .. and .git
-    //CURRENTLY RUNNING INTO ISSUES AND CAUSING INFINITE LOOPING
-    /*if (strstr(cur_file->d_name, "..") == NULL){
-      continue;
-      }*/ 
-
+    //Prevent searching in .. -> STILL NOT WORKING WHEN NOT RUN IN THE PROJECT DIR
     if(!((strcmp(cur_file->d_name, dir_name) == 0)||(strcmp(dir_name, "..") ==0))){
                   
                 
@@ -138,7 +133,7 @@ void* search_dir(void* args){
       //If the element is a directory do the thread check
 
       if ((file_stat->st_mode &S_IFDIR)){
-        //    printf("Cur_file is a directory\n");
+        printf("%s is a directory\n", cur_file->d_name);
         //Lock the count
         pthread_mutex_lock (&count_lock);
 
