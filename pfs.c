@@ -47,6 +47,7 @@ void add_to_queue(queue_t *queue, char* file_name){
     queue->back = new;
   } else {
     queue->back->next = new;
+	queue->back = queue->back->next;
   }
 }
 
@@ -141,7 +142,7 @@ void* search_dir(void* args){
 
       if (strstr (cur_file->d_name,search_str) != NULL){
         //Just print the file name for now.
-        printf("%s \n", cur_file->d_name); 
+        printf("%s ***********************\n", cur_file->d_name); 
       }
 
       //If the element is a directory do the thread check
@@ -153,7 +154,7 @@ void* search_dir(void* args){
 
 
         if (cur_threads >= max_threads){
-          printf("Need to add %s to queue\n", cur_path);
+          //printf("Need to add %s to queue\n", cur_path);
           //Lock the queue
           pthread_mutex_lock (&q_lock);
 
@@ -211,7 +212,7 @@ void* search_dir(void* args){
     free(next_args);
     free(next_dir);
   }
- 
+   //pthread_mutex_unlock(&q_lock);
 
   //Decrement the number of threads running
   pthread_mutex_lock(&count_lock);
