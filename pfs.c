@@ -43,9 +43,11 @@ queue_t* init_queue(){
 void add_to_queue(queue_t *queue, char* file_name){
 	to_recurse_t *new = new_to_recurse(file_name); 
 	if(queue->front == NULL){
+		printf("First Element in queue\n");
 		queue->front = new;
 		queue->back = new;
 	} else {
+		printf("Last element in queue is %s\n", queue->back->file_name);
 		queue->back->next = new;
 		queue->back = queue->back->next;
 		queue->back->next = NULL;
@@ -110,7 +112,7 @@ void* search_dir(void* args){
 	char*dir_name = thread_args->file_name;
 
   
-	printf("Searching %s\n", dir_name);
+	printf("Searching : %s\n", dir_name);
 
 	//Open a directory from the file name
 	DIR* cur_dir = opendir(dir_name);
