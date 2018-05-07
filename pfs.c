@@ -101,23 +101,32 @@ typedef struct thread_args{
 
 char* search_str;
 
-#define MAX_NAME 500
+#define MAX_NAME 500 //Maximum number of chars in a file name
 
 //Threaded searching function
 void* search_dir(void* args){
-  pthread_t new_thread[max_threads];
-  thread_args_t* dir_thread_args[max_threads];
-  int cur_thread = 0;
+
   
+  pthread_t new_thread[max_threads];//Array of threads
+  thread_args_t* dir_thread_args[max_threads]; //Array of thread arguments
+  int cur_thread = 0; //The index of the current thread
+
+  //Create a thread_args_t from the input param
   thread_args_t *arg = (thread_args_t*) args;
+
+  //Open the directory
   DIR* cur_dir = opendir(arg->file_name);
-  char* dir_name = arg->file_name;
+
+  char* dir_name = arg->file_name; //The name of the directory
+
+  //If the cur_dir is not a directory that can be opened exit.
   if (cur_dir == NULL){
     fprintf(stderr,"Unable to open directory %s \n", arg->file_name);
     exit (EXIT_FAILURE);
   }
-  struct stat file_stat;
+  struct stat file_stat; //the stat structure
 
+  //Start reading the directory
   struct dirent* cur_file = readdir(cur_dir);
   
   //While there are still files in the directory
@@ -145,7 +154,7 @@ void* search_dir(void* args){
 
       //Check if it's a directory
       if (S_ISDIR(file_stat.st_mode)){
-        //printf("%s is a directory\n", cur_file->d_name);
+        printf("%s is a directory\n", cur_file->d_name);
 
         //Lock the count
         pthread_mutex_lock(&count_lock);
@@ -166,7 +175,7 @@ void* search_dir(void* args){
           dir_thread_args[cur_thread]->file_name = cur_path;
 
           pthread_create(&(new_thread[cur_thread]), NULL, search_dir, dir_thread_args[cur_thread]);
-          cur_threads ++; //WHY ARE WE INCREMENTING CUR THREADS TWICE??? 
+          cur_threads ++; 
           cur_thread ++;
         }//Close the if/else on count check
 
@@ -243,7 +252,8 @@ void start_search(char* file_name, char* str){
   
   //Initialize search string global
   search_str = str;
-  
+
+  //Set up first directory search
   thread_args_t* args = malloc (sizeof (thread_args_t));
   args->file_name = file_name;
 	
