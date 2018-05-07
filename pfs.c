@@ -170,10 +170,11 @@ void* search_dir(void* args){
           pthread_mutex_unlock(&q_lock);
         } else {
           
-          //Create a new thread for the directory
+          //Create a new set of thread args for the new thread
           dir_thread_args[cur_thread]  = malloc(sizeof(thread_args_t));
           dir_thread_args[cur_thread]->file_name = cur_path;
 
+          //Create a new thread for the directory
           pthread_create(&(new_thread[cur_thread]), NULL, search_dir, dir_thread_args[cur_thread]);
           cur_threads ++; 
           cur_thread ++;
@@ -205,6 +206,8 @@ void* search_dir(void* args){
 
   //If the next element is not null
   if(next_dir != NULL){
+    printf("Removed %s from queue\n", next_dir->file_name);
+    
     //Create a new thread args with the file name
     thread_args_t* next_args = malloc(sizeof(thread_args_t));
     next_args->file_name = next_dir->file_name;
@@ -240,10 +243,11 @@ void start_search(char* file_name, char* str){
   queue = init_queue();
 
   //add in code to get num of cpus
-  //max_threads = 1;
-  max_threads = 2 * sysconf(_SC_NPROCESSORS_ONLN); 
+  max_threads = 2; //Stops working after 2 threads
+  // max_threads = 2 * sysconf(_SC_NPROCESSORS_ONLN); 
   printf("Max threads: %d\n", max_threads);
-	
+
+  //Start with 1 thread
   cur_threads = 1;
 
   //Init the locks
