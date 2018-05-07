@@ -52,8 +52,8 @@ void add_to_queue(queue_t *queue, char* file_name){
     queue->back = queue->back->next;
     queue->back->next = NULL;
   }
-  //printf("Queue front is %s\n", queue->front->file_name);
-  //printf("Queue back is %s\n", queue->back->file_name);
+  printf("Queue front is %s\n", queue->front->file_name);
+  printf("Queue back is %s\n", queue->back->file_name);
 }
 
 //Get the next element in the queue
@@ -111,6 +111,7 @@ void* search_dir(void* args){
   
   thread_args_t *arg = (thread_args_t*) args;
   DIR* cur_dir = opendir(arg->file_name);
+  char* dir_name = arg->file_name;
   if (cur_dir == NULL){
     fprintf(stderr,"Unable to open directory %s \n", arg->file_name);
     exit (EXIT_FAILURE);
@@ -118,56 +119,105 @@ void* search_dir(void* args){
   struct stat file_stat;
 
   struct dirent* cur_file = readdir(cur_dir);
+  
+  //While there are still files in the directory
   while(cur_file != NULL){
+    //If the file is not one of the specified ones we aren't searching
     if(!((strcmp(cur_file->d_name, arg->file_name) == 0)||
          (strcmp(cur_file->d_name, "..") == 0) ||
          (strcmp(cur_file->d_name, ".") == 0))){
-      if(strstr(cur_file->d_name, search_str) != NULL){printf("%s in %s\n", cur_file->d_name, arg->file_name);}
+
+      //If we find something containing the file name
+      if(strstr(cur_file->d_name, search_str) != NULL){
+        printf("%s in %s\n", cur_file->d_name, arg->file_name);
+      }
+      //Create the file path
       char* cur_path = malloc(sizeof(char)*MAX_NAME);
       strcpy(cur_path, arg->file_name);
       strcat(cur_path, "/");
       strcat(cur_path, cur_file->d_name);
-      
+
+      //Get the stat for the file
       if(stat(cur_path, &file_stat) != 0){
         fprintf(stderr,"Stat failed: %s\n", cur_path);
         exit(2);
       }
+
+      //Check if it's a directory
       if (S_ISDIR(file_stat.st_mode)){
         //printf("%s is a directory\n", cur_file->d_name);
+
+        //Lock the count
         pthread_mutex_lock(&count_lock);
+
+        //Check if we have any threads left before hitting the max
         if (cur_threads >= max_threads){
+          //Lock the queue
           pthread_mutex_lock(&q_lock);
-          add_to_queue (queue, cur_path);
+
+          add_to_queue (queue, cur_path); //Add the directory to the queue
+
+          //Unlock the queue
           pthread_mutex_unlock(&q_lock);
         } else {
+          
+          //Create a new thread for the directory
           dir_thread_args[cur_thread]  = malloc(sizeof(thread_args_t));
           dir_thread_args[cur_thread]->file_name = cur_path;
+
           pthread_create(&(new_thread[cur_thread]), NULL, search_dir, dir_thread_args[cur_thread]);
-          cur_threads ++;
+          cur_threads ++; //WHY ARE WE INCREMENTING CUR THREADS TWICE??? 
           cur_thread ++;
-        }
+        }//Close the if/else on count check
+
+        //Unlock the count
         pthread_mutex_unlock(&count_lock);
-      }
-    }
+        
+      } //Close the directory check
+      
+    }//Close the file name check
+
+    //Continue through the directory
     cur_file = readdir(cur_dir);
-  }
+
+  }//Close the while loop
+
+  //Close the now finished directory
   closedir(cur_dir);
 
+  //Lock the queue
   pthread_mutex_lock(&q_lock);
+
+  //Get the next element from the queue
   to_recurse_t* next_dir = get_next(queue);
+
+  //Unlock the queue
   pthread_mutex_unlock(&q_lock);
+
+  //If the next element is not null
   if(next_dir != NULL){
+    //Create a new thread args with the file name
     thread_args_t* next_args = malloc(sizeof(thread_args_t));
     next_args->file_name = next_dir->file_name;
+
+    //Rerun the search on the new directory
     search_dir(next_args);
+
+    //When that search finishes, free everything 
     free(next_args);
     free(next_dir->file_name);
     free(next_dir);
-  }
+  }//Close the next_dir check
 
-  //printf("ENDING_THREAD\n");
+  printf("ENDING_THREAD, %s\n",dir_name);
+
+  //Lock the count
   pthread_mutex_lock(&count_lock);
+
+  //Thread is now dead, decrement the count
   cur_threads --;
+
+  //Unlock the count
   pthread_mutex_unlock(&count_lock);
 
   return NULL;
@@ -181,8 +231,8 @@ void start_search(char* file_name, char* str){
   queue = init_queue();
 
   //add in code to get num of cpus
-  max_threads = 1;
-  //max_threads = 2 * sysconf(_SC_NPROCESSORS_ONLN); 
+  //max_threads = 1;
+  max_threads = 2 * sysconf(_SC_NPROCESSORS_ONLN); 
   printf("Max threads: %d\n", max_threads);
 	
   cur_threads = 1;
@@ -203,13 +253,13 @@ void start_search(char* file_name, char* str){
 //------------------------------------------------------
 //Main function
 int main(int argc, char** argv){
-	printf("In main\n");
-	if(argc != 2){
-		fprintf(stderr, "Usage: %s <search term>\n", argv[0]);
-		exit(EXIT_FAILURE);
-	}
-
-	start_search(".", argv[1]);
+  printf("In main\n");
+  if(argc != 2){
+    fprintf(stderr, "Usage: %s <search term>\n", argv[0]);
+    exit(EXIT_FAILURE);
+  }
+  //Start the search in the current directory
+  start_search(".", argv[1]);
 	
-	return 0;
+  return 0;
 }
