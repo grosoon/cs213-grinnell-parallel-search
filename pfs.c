@@ -140,6 +140,7 @@ void* search_dir(void* args){
           add_to_queue (queue, cur_path);
           pthread_mutex_unlock(&q_lock);
         } else {
+          printf("creating new thread for %s, %d\n",cur_path, cur_thread);
           dir_thread_args[cur_thread]  = malloc(sizeof(thread_args_t));
           dir_thread_args[cur_thread]->file_name = cur_path;
           pthread_create(&(new_thread[cur_thread]), NULL, search_dir, dir_thread_args[cur_thread]);
@@ -181,8 +182,8 @@ void start_search(char* file_name, char* str){
   queue = init_queue();
 
   //add in code to get num of cpus
-  max_threads = 1;
-  //max_threads = 2 * sysconf(_SC_NPROCESSORS_ONLN); 
+  //max_threads = 1;
+  max_threads = 2 * sysconf(_SC_NPROCESSORS_ONLN); 
   printf("Max threads: %d\n", max_threads);
 	
   cur_threads = 1;
