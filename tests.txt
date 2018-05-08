@@ -1,0 +1,31 @@
+all cs213
+one: 57
+two: 42
+four: 37
+eight: 35
+sixteen: 37
+thirty_two: 41
+sixty_four: 57
+linear: 65
+
+
+in folder:
+one: 2
+two: 2
+four: 2
+eight: 2
+sixteen: 2
+thirty_two: 2
+sixty_four: 2
+linear: 2
+
+
+big:
+one: 517
+two: 374
+four: 296
+eight: 235
+sixteen: 238
+thirty_two: 252
+sixty_four: 265
+linear: ???

@@ -1,7 +1,7 @@
 CC = clang
 CFLAGS = -Wall -g
 
-all: pfs #queue search file_search test
+all: tests
 
 clean:
 	rm -f pfs
@@ -9,8 +9,8 @@ clean:
 	#rm -f search
 	#rm -f test
 	#rm -f file_search	
-pfs: pfs.c
-	$(CC) $(CFLAGS) -o pfs pfs.c -lpthread
+#pfs: pfs.c
+#	$(CC) $(CFLAGS) -o pfs pfs.c -lpthread
 #queue: queue.h queue.c
 #	$(CC) $(CFLAGS) -o queue queue.c
 #search: search.c queue.c #queue.h 
@@ -20,3 +20,5 @@ pfs: pfs.c
 #test: test.c file-search.c #search.c file_search.h
 #	$(CC) $(CFLAGS) -o test test.c file_search.c 
 
+tests : test.c pfs.c pfs.h
+	gcc ${CPPFLAGS} ${CFLAGS} pfs.c test.c -o tests -lpthread
