@@ -1,4 +1,4 @@
-all cs213
+all cs213 - 2487 items
 one: 57
 two: 42
 four: 37
@@ -9,7 +9,7 @@ sixty_four: 57
 linear: 65
 
 
-in folder:
+in folder: 143 items
 one: 2
 two: 2
 four: 2
@@ -20,7 +20,7 @@ sixty_four: 2
 linear: 2
 
 
-big:
+big: 47274 items
 one: 517
 two: 374
 four: 296
