@@ -28,9 +28,7 @@ typedef struct queue {
 //Set up the to_recurse_t structs (queue nodes)
 to_recurse_t* new_to_recurse(char* file_name) {
   to_recurse_t *new = malloc(sizeof(to_recurse_t));
-  // new->file_name = malloc(sizeof(char)*500);
   new->file_name = file_name;
-  //strcpy(new->file_name, file_name);
   new->next = NULL;
   return new;
 }
@@ -47,17 +45,13 @@ queue_t* init_queue(){
 void add_to_queue(queue_t *queue, char* file_name){
   to_recurse_t *new = new_to_recurse(file_name); 
   if(queue->front == NULL){
-    //printf("First Element in queue\n");
     queue->front = new;
     queue->back = new;
   } else {
-    //printf("Last element in queue is %s\n", queue->back->file_name);
     queue->back->next = new;
     queue->back = queue->back->next;
     queue->back->next = NULL;
   }
-  //printf("Queue front is %s\n", queue->front->file_name);
-  //printf("Queue back is %s\n", queue->back->file_name);
 }
 
 //Get the next element in the queue
@@ -103,7 +97,7 @@ typedef struct thread_args{
   char* file_name;
 }thread_args_t;
 
-char* search_str;
+char* search_str; //The search string
 
 #define MAX_NAME 500 //Maximum number of chars in a file name
 
@@ -120,8 +114,6 @@ void* search_dir(void* args){
 
   //Open the directory
   DIR* cur_dir = opendir(arg->file_name);
-
-  char* dir_name = arg->file_name; //The name of the directory
 
   //If the cur_dir is not a directory that can be opened exit.
   if (cur_dir == NULL){
@@ -170,8 +162,6 @@ void* search_dir(void* args){
           //Unlock the queue
           pthread_mutex_unlock(&q_lock);
         } else {
-          //printf("creating new thread for %s, %d\n",cur_path, cur_thread);
-          
           //Create a new set of thread args for the new thread
           dir_thread_args[cur_thread]  = malloc(sizeof(thread_args_t));
           dir_thread_args[cur_thread]->file_name = cur_path;
@@ -185,7 +175,10 @@ void* search_dir(void* args){
         //Unlock the count
         pthread_mutex_unlock(&count_lock);
       } else {
+
+        //Free the cur_path allocation
         free(cur_path);
+   
       }//Close the directory check
       
     }//Close the file name check
@@ -209,8 +202,7 @@ void* search_dir(void* args){
 
   //If the next element is not null
   if(next_dir != NULL){
-    //printf("Removed %s from queue\n", next_dir->file_name);
-    
+   
     //Create a new thread args with the file name
     thread_args_t* next_args = malloc(sizeof(thread_args_t));
     next_args->file_name = next_dir->file_name;
@@ -224,17 +216,13 @@ void* search_dir(void* args){
     free(next_dir);
   }//Close the next_dir check
 
-
+  //Join all of the running threads and clean up
   for(int i = 0; i < cur_thread; i++){
     pthread_join(new_thread[i], NULL);
     free(dir_thread_args[i]->file_name);
     free(dir_thread_args[i]);
   }
-
   
-
-  //printf("ENDING_THREAD, %s\n",dir_name);
-
   //Lock the count
   pthread_mutex_lock(&count_lock);
 
@@ -254,12 +242,9 @@ void start_search(char* file_name, char* str, int mult){
   //init stuff
   queue = init_queue();
 
-  //add in code to get num of cpus
-
-  //max_threads = 1;
+  //Set max threads to be a multiple of the number of processors
   max_threads = mult * sysconf(_SC_NPROCESSORS_ONLN); 
-  //printf("Max threads: %d\n", max_threads);
-
+ 
   //Start with 1 thread
   cur_threads = 1;
 
@@ -273,8 +258,11 @@ void start_search(char* file_name, char* str, int mult){
   //Set up first directory search
   thread_args_t* args = malloc (sizeof (thread_args_t));
   args->file_name = file_name;
-	
+
+  //Search the directory
   search_dir (args);
+
+  //Clean up
   free(args); 
   free_queue(queue);
   pthread_mutex_destroy(&q_lock);
@@ -286,11 +274,8 @@ void start_l_search(char* file_name, char* str){
   //init stuff
   queue = init_queue();
 
-  //add in code to get num of cpus
-
+  //Linear search uses at most 1 thread
   max_threads = 1;
-  //max_threads = 2 * sysconf(_SC_NPROCESSORS_ONLN); 
-  //printf("Max threads: %d\n", max_threads);
 
   //Start with 1 thread
   cur_threads = 1;
@@ -305,9 +290,11 @@ void start_l_search(char* file_name, char* str){
   //Set up first directory search
   thread_args_t* args = malloc (sizeof (thread_args_t));
   args->file_name = file_name;
-	
+
+  //Search the directory
   search_dir (args);
 
+  //Clean up
   free(args);
   free_queue(queue);
   pthread_mutex_destroy(&q_lock);
@@ -315,76 +302,77 @@ void start_l_search(char* file_name, char* str){
 }
 
 
-
+/*
 //------------------------------------------------------
-//Main function
-/* int main(int argc, char** argv){ */
+Main function
+int main(int argc, char** argv){
 
   
-/*   if(argc != 2){ */
-/*     fprintf(stderr, "Usage: %s <search term>\n", argv[0]); */
-/*     exit(EXIT_FAILURE); */
-/*   } */
+  if(argc != 2){
+    fprintf(stderr, "Usage: %s <search term>\n", argv[0]);
+    exit(EXIT_FAILURE);
+  }
 
   
-/*   // printf("In main\n"); */
-/*   int one = 0; */
-/*   int two = 0; */
-/*   int four = 0; */
-/*   int eight = 0; */
-/*   int linear = 0; */
-/*   int sixteen = 0; */
-/*   int thirty_two = 0; */
-/*   int sixty_four = 0; */
+  // printf("In main\n");
+  int one = 0;
+  int two = 0;
+  int four = 0;
+  int eight = 0;
+  int linear = 0;
+  int sixteen = 0;
+  int thirty_two = 0;
+  int sixty_four = 0;
   
-/*   /\* for(int i = 0; i < 50; i++){ *\/ */
+  for(int i = 0; i < 50; i++){
     
-/*   /\*   clock_t start = clock(); *\/ */
-/*   /\*   start_search(".", argv[1], 1); *\/ */
-/*   /\*   clock_t diff = clock() - start; *\/ */
-/*   /\*   one += diff * 1000 / CLOCKS_PER_SEC; *\/ */
-/*   /\*   start = clock(); *\/ */
-/*   /\*   start_search(".", argv[1], 2); *\/ */
-/*   /\*   diff = clock() - start; *\/ */
-/*   /\*   two += diff * 1000 / CLOCKS_PER_SEC; *\/ */
-/*   /\*   start = clock(); *\/ */
-/*   /\*   start_search(".", argv[1], 4); *\/ */
-/*   /\*   diff = clock() - start; *\/ */
-/*   /\*   four += diff * 1000 / CLOCKS_PER_SEC; *\/ */
-/*   /\*   start = clock(); *\/ */
-/*   /\*   start_search(".", argv[1], 8); *\/ */
-/*   /\*   diff = clock() - start; *\/ */
-/*   /\*   eight += diff * 1000 / CLOCKS_PER_SEC; *\/ */
-/*   /\*   start = clock(); *\/ */
-/*   /\*   start_search(".", argv[1], 16); *\/ */
-/*   /\*   diff = clock() - start; *\/ */
-/*   /\*   sixteen += diff * 1000 / CLOCKS_PER_SEC; *\/ */
-/*   /\*   start = clock(); *\/ */
-/*   /\*   start_search(".", argv[1], 32); *\/ */
-/*   /\*   diff = clock() - start; *\/ */
-/*   /\*   thirty_two += diff * 1000 / CLOCKS_PER_SEC; *\/ */
-/*   /\*   start = clock(); *\/ */
-/*   /\*    start_search(".", argv[1], 64); *\/ */
-/*   /\*   diff = clock() - start; *\/ */
-/*   /\*   sixty_four += diff * 1000 / CLOCKS_PER_SEC; *\/ */
-/*   /\*   start = clock(); *\/ */
-/*   /\*   start_l_search(".", argv[1]); *\/ */
-/*   /\*   diff = clock() - start; *\/ */
-/*   /\*   linear += diff * 1000 / CLOCKS_PER_SEC; *\/ */
+    clock_t start = clock();
+    start_search(".", argv[1], 1);
+    clock_t diff = clock() - start;
+    one += diff * 1000 / CLOCKS_PER_SEC;
+    start = clock();
+    start_search(".", argv[1], 2);
+    diff = clock() - start;
+    two += diff * 1000 / CLOCKS_PER_SEC;
+    start = clock();
+    start_search(".", argv[1], 4);
+    diff = clock() - start;
+    four += diff * 1000 / CLOCKS_PER_SEC;
+    start = clock();
+    start_search(".", argv[1], 8);
+    diff = clock() - start;
+    eight += diff * 1000 / CLOCKS_PER_SEC;
+    start = clock();
+    start_search(".", argv[1], 16);
+    diff = clock() - start;
+    sixteen += diff * 1000 / CLOCKS_PER_SEC;
+    start = clock();
+    start_search(".", argv[1], 32);
+    diff = clock() - start;
+    thirty_two += diff * 1000 / CLOCKS_PER_SEC;
+    start = clock();
+     start_search(".", argv[1], 64);
+    diff = clock() - start;
+    sixty_four += diff * 1000 / CLOCKS_PER_SEC;
+    start = clock();
+    start_l_search(".", argv[1]);
+    diff = clock() - start;
+    linear += diff * 1000 / CLOCKS_PER_SEC;
     
-/*   /\* } *\/ */
-/*   printf("one: %d\n", one/50); */
-/*   printf("two: %d\n", two/50); */
-/*   printf("four: %d\n", four/50); */
-/*   printf("eight: %d\n", eight/50); */
-/*   printf("sixteen: %d\n", sixteen/50); */
-/*   printf("thirty_two: %d\n", thirty_two/50); */
-/*   printf("sixty_four: %d\n", sixty_four/50); */
-/*   printf("linear: %d\n", linear/50); */
+  }
+  printf("one: %d\n", one/50);
+  printf("two: %d\n", two/50);
+  printf("four: %d\n", four/50);
+  printf("eight: %d\n", eight/50);
+  printf("sixteen: %d\n", sixteen/50);
+  printf("thirty_two: %d\n", thirty_two/50);
+  printf("sixty_four: %d\n", sixty_four/50);
+  printf("linear: %d\n", linear/50);
 
-/*   start_search(".", argv[1], 64); */
+  start_search(".", argv[1], 64);
 
 
-/*   //Start the search in the current directory	 */
-/*   return 0; */
-/* } */
+  //Start the search in the current directory
+  return 0;
+  
+  }*/
