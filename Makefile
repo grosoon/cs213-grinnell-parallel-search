@@ -1,24 +1,11 @@
 CC = clang
 CFLAGS = -Wall -g
 
-all: tests
+all: pfs #tests
 
 clean:
 	rm -f pfs
-	#rm -f queue 
-	#rm -f search
-	#rm -f test
-	#rm -f file_search	
-#pfs: pfs.c
-#	$(CC) $(CFLAGS) -o pfs pfs.c -lpthread
-#queue: queue.h queue.c
-#	$(CC) $(CFLAGS) -o queue queue.c
-#search: search.c queue.c #queue.h 
-#	$(CC) $(CLFAGS) -o search search.c queue.c 
-#file_search: file_search.c search.c search.h queue.h
-#	$(CC) $(CFLAGS) -o file_search file_search.c #search.c queue.c
-#test: test.c file-search.c #search.c file_search.h
-#	$(CC) $(CFLAGS) -o test test.c file_search.c 
-
-tests : test.c pfs.c pfs.h
-	gcc ${CPPFLAGS} ${CFLAGS} pfs.c test.c -o tests -lpthread
+pfs: pfs.c
+	$(CC) $(CFLAGS) -o pfs pfs.c -lpthread
+#tests : test.c pfs.c pfs.h
+#	$(CC) $(CFLAGS) pfs.c test.c -o tests -lpthread

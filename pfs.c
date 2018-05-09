@@ -302,77 +302,36 @@ void start_l_search(char* file_name, char* str){
 }
 
 
-/*
-//------------------------------------------------------
-Main function
-int main(int argc, char** argv){
 
+//Main function------------------------------------------------
+int main(int argc, char** argv){
   
-  if(argc != 2){
-    fprintf(stderr, "Usage: %s <search term>\n", argv[0]);
+  //Check that we have all of the necessary arguments
+  if(argc != 3){
+    fprintf(stderr, "Usage: %s <search term> <processor multiplier or l - if linear>\n", argv[0]);
     exit(EXIT_FAILURE);
   }
 
-  
-  // printf("In main\n");
-  int one = 0;
-  int two = 0;
-  int four = 0;
-  int eight = 0;
-  int linear = 0;
-  int sixteen = 0;
-  int thirty_two = 0;
-  int sixty_four = 0;
-  
-  for(int i = 0; i < 50; i++){
-    
+  //Set up and start the clock
+  int time = 0;
+  //Perform the test 100 times
+  for (int i = 0; i<100; i++){
     clock_t start = clock();
-    start_search(".", argv[1], 1);
+  
+    //Start the specified search
+    if (strcmp(argv[2], "l") ==0){
+      start_l_search(".", argv[1]);
+    }else{
+      //Convert our multiplier to an int
+      int multi = atoi(argv[2]);
+      start_search(".", argv[1], multi);
+    }
     clock_t diff = clock() - start;
-    one += diff * 1000 / CLOCKS_PER_SEC;
-    start = clock();
-    start_search(".", argv[1], 2);
-    diff = clock() - start;
-    two += diff * 1000 / CLOCKS_PER_SEC;
-    start = clock();
-    start_search(".", argv[1], 4);
-    diff = clock() - start;
-    four += diff * 1000 / CLOCKS_PER_SEC;
-    start = clock();
-    start_search(".", argv[1], 8);
-    diff = clock() - start;
-    eight += diff * 1000 / CLOCKS_PER_SEC;
-    start = clock();
-    start_search(".", argv[1], 16);
-    diff = clock() - start;
-    sixteen += diff * 1000 / CLOCKS_PER_SEC;
-    start = clock();
-    start_search(".", argv[1], 32);
-    diff = clock() - start;
-    thirty_two += diff * 1000 / CLOCKS_PER_SEC;
-    start = clock();
-     start_search(".", argv[1], 64);
-    diff = clock() - start;
-    sixty_four += diff * 1000 / CLOCKS_PER_SEC;
-    start = clock();
-    start_l_search(".", argv[1]);
-    diff = clock() - start;
-    linear += diff * 1000 / CLOCKS_PER_SEC;
-    
+    time += (diff * 1000)/CLOCKS_PER_SEC;
   }
-  printf("one: %d\n", one/50);
-  printf("two: %d\n", two/50);
-  printf("four: %d\n", four/50);
-  printf("eight: %d\n", eight/50);
-  printf("sixteen: %d\n", sixteen/50);
-  printf("thirty_two: %d\n", thirty_two/50);
-  printf("sixty_four: %d\n", sixty_four/50);
-  printf("linear: %d\n", linear/50);
-
-  start_search(".", argv[1], 64);
-
-
-  //Start the search in the current directory
+  //Print the average time
+  printf ("Avg. time (ms) for %s : %d\n", argv[2],time/100);
   return 0;
   
-  }*/
+  
+  }
