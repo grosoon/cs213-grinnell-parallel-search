@@ -46,36 +46,7 @@ int main(int argc, char** argv) {
 
     //Get the time elapsed
     clock_t diff = clock() - start;
-    one += diff * 1000 / CLOCKS_PER_SEC;
-    /* start = clock(); */
-    /* start_search(".", argv[1], 64); */
-    /* diff = clock() - start; */
-    /* two += diff * 1000 / CLOCKS_PER_SEC; */
-    /* start = clock(); */
-    /* start_search(".", argv[1], 4); */
-    /* diff = clock() - start; */
-    /* four += diff * 1000 / CLOCKS_PER_SEC; */
-    /* start = clock(); */
-    /* start_search(".", argv[1], 8); */
-    /* diff = clock() - start; */
-    /* eight += diff * 1000 / CLOCKS_PER_SEC; */
-    /* start = clock(); */
-    /* start_search(".", argv[1], 16); */
-    /* diff = clock() - start; */
-    /* sixteen += diff * 1000 / CLOCKS_PER_SEC; */
-    /* start = clock(); */
-    /* start_search(".", argv[1], 32); */
-    /* diff = clock() - start; */
-    /* thirty_two += diff * 1000 / CLOCKS_PER_SEC; */
-    /* start = clock(); */
-    /*  start_search(".", argv[1], 64); */
-    /* diff = clock() - start; */
-    /* sixty_four += diff * 1000 / CLOCKS_PER_SEC; */
-    /* start = clock(); */
-    /* start_l_search(".", argv[1]); */
-    /* diff = clock() - start; */
-    /* linear += diff * 1000 / CLOCKS_PER_SEC; */
-    
+    one += diff * 1000 / CLOCKS_PER_SEC;  
   }
   
   //Print the results to the terminal
