@@ -1,6 +1,8 @@
 # cs213-grinnell-parallel-search
 
-pfs is a parallel search function that is used to search for all files and directories, within the directory from which pfs is called, whose names contain the search term.
+By Nolan Schoenle, Greyson Bourgeois, and Benjamin Wong
+
+Parallel File Search (pfs) is a parallel search function that is used to search for all files and directories, within the directory from which pfs is called, whose names contain the search term.
 
 When a matching file or directory is found, its name is printed out along with the path that leads to it.
 
@@ -32,5 +34,5 @@ All commits outside of class time were individual programming.
 
 #__________________________________________________________________________________________
 
-Run time tests can be run on pfs by using the command ```pfs <search_str> <threads_per_core>``` where <threads_per_core> is either the number of threads you want run on each core, or l for a linear search.    
-This call will result in ```pfs <search_str>``` being run 100 times with max_threads being calculated by multiplying the number of cores in the machine by <threads_per_core>, then printing the average time it took the function to run once.
+Run time tests can be run on pfs by using the command ```pfs <search_str> <threads_per_core>``` where <threads_per_core> is either the number of threads you want to run on each core, or l for a linear search.    
+This call will result in ```pfs <search_str>``` being run 100 times with max_threads being calculated by multiplying the number of cores in the machine by <threads_per_core>. Then, the test will print the average time it took the function to run once.
