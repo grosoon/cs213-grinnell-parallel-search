@@ -78,7 +78,7 @@ void free_queue(queue_t *queue) {
 void print_queue(queue_t* queue) {
   to_recurse_t* cur = queue->front;
   printf("Queue Elements:\n");
-  while (cur != NULL) {
+  while(cur != NULL) {
     printf("\t%s\n", cur->file_name);
     cur = cur->next;
   }
@@ -117,7 +117,7 @@ void* search_dir(void* args) {
   DIR* cur_dir = opendir(arg->file_name);
 
   //If the cur_dir is not a directory that can be opened exit.
-  if (cur_dir == NULL) {
+  if(cur_dir == NULL) {
     fprintf(stderr,"Unable to open directory %s \n", arg->file_name);
     exit (EXIT_FAILURE);
   }
@@ -155,7 +155,7 @@ void* search_dir(void* args) {
         pthread_mutex_lock(&count_lock);
 
         //Check if we have any threads left before hitting the max
-        if (cur_threads >= max_threads || cur_thread >= 100) {
+        if(cur_threads >= max_threads || cur_thread >= 100) {
           
           //Lock the queue
           pthread_mutex_lock(&q_lock);
@@ -314,23 +314,23 @@ void start_l_search(char* file_name, char* str) {
 int main(int argc, char** argv) {
 	
   //Check that we have all of the necessary arguments
-  if (argc < 2 || argc >3) {
+  if(argc < 2 || argc >3) {
     fprintf(stderr, "Usage: %s <search term> <TESTING MODE:processor multiplier or l - if linear>\n", argv[0]);
     exit(EXIT_FAILURE);
   }
 	
   //IF WE HAVE 3 ARGUMENTS, WE'RE RUNNING IN TEST MODE
-  if (argc == 3) {
+  if(argc == 3) {
     
     //Set up and start the clock
     int time = 0;
     
     //Perform the test 100 times
-    for (int i = 0; i<100; i++) {
+    for(int i = 0; i<100; i++) {
       clock_t start = clock();
   
       //Start the specified search
-      if (strcmp(argv[2], "l") ==0) {
+      if(strcmp(argv[2], "l") ==0) {
         start_l_search(".", argv[1]);
       } else {
         //Convert our multiplier to an int
