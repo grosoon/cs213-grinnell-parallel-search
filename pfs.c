@@ -13,11 +13,11 @@
 #include "pfs.h"
 
 //--------------------------------------------------------
+
 typedef struct to_recurse {
   char *file_name;
   struct to_recurse *next;
 } to_recurse_t;
-
 
 typedef struct queue {
   to_recurse_t *front;
@@ -32,7 +32,7 @@ to_recurse_t* new_to_recurse(char* file_name) {
   return new;
 }
 
-//Set up a queue
+//Set-up a queue
 queue_t* init_queue() {
   queue_t* ret = malloc(sizeof(queue_t));
   ret->front = NULL;
@@ -94,7 +94,7 @@ int max_threads; //the thread limit
 pthread_mutex_t count_lock; //Lock to protect # of threads running
 int cur_threads; //# of threads running
 
-//Args for each search thread
+//args for each search thread
 typedef struct thread_args {
   char* file_name;
 } thread_args_t;
@@ -106,7 +106,6 @@ char* search_str; //The search string
 //Threaded searching function
 void* search_dir(void* args) {
 
-  
   pthread_t new_thread[100]; //Array of threads
   thread_args_t* dir_thread_args[100]; //Array of thread arguments
   int cur_thread = 0; //The index of the current thread
@@ -130,7 +129,7 @@ void* search_dir(void* args) {
   //While there are still files in the directory
   while(cur_file != NULL) {
     
-    //If the file is not one of the specified ones we aren't searching
+    //If the file is not one of the specified ones, we aren't searching
     if(!((strcmp(cur_file->d_name, arg->file_name) == 0) ||
          (strcmp(cur_file->d_name, "..") == 0) ||
          (strcmp(cur_file->d_name, ".") == 0))) {
@@ -157,6 +156,7 @@ void* search_dir(void* args) {
 
         //Check if we have any threads left before hitting the max
         if (cur_threads >= max_threads || cur_thread >= 100) {
+          
           //Lock the queue
           pthread_mutex_lock(&q_lock);
 
@@ -236,8 +236,6 @@ void* search_dir(void* args) {
   pthread_mutex_unlock(&count_lock);
 
   return NULL;
-    
-
 }
 
 void start_search(char* file_name, char* str, int mult) {
@@ -317,8 +315,10 @@ int main(int argc, char** argv) {
 	
   //IF WE HAVE 3 ARGUMENTS, WE'RE RUNNING IN TEST MODE
   if(argc == 3) {
+    
     //Set up and start the clock
     int time = 0;
+    
     //Perform the test 100 times
     for (int i = 0; i<100; i++) {
       clock_t start = clock();
@@ -334,11 +334,13 @@ int main(int argc, char** argv) {
       clock_t diff = clock() - start;
       time += (diff * 1000)/CLOCKS_PER_SEC;
     }
+    
     //Print the average time
     printf ("Avg. time (ms) for %s : %d\n", argv[2],time/100);
     return 0;
   } else {
+    
     //IF WE HAVE 2 ARGUMENTS, WE RUN IN NORMAL MODE
-    start_search(".", argv[1], 8);//Replace with actual ideal multiplier
+    start_search(".", argv[1], 8); //Replace with actual ideal multiplier
   }
 }
