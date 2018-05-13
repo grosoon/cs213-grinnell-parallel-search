@@ -16,11 +16,11 @@ in order to use the function, call pfs from the directory you want to search usi
 
 For example, running "./pfs pfs" inside the cs213-grinnell-parallel-search file would print:
 
-pfs.dSYM in .
-pfs.c in .
-pfs.h in .
-pfs in .
-pfs in ./pfs.dSYM/Contents/Resources/DWARF
+pfs.dSYM in .   
+pfs.c in .  
+pfs.h in .  
+pfs in .  
+pfs in ./pfs.dSYM/Contents/Resources/DWARF  
 
 though the order of the files might be different. 
 
