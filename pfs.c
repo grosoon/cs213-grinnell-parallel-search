@@ -149,7 +149,7 @@ void* search_dir(void* args) {
       if(stat(cur_path, &file_stat) != 0) {
         fprintf(stderr,"Stat failed: %s\n", cur_path);
         //exit(2);
-      } else if (S_ISDIR(file_stat.st_mode)) {
+      } else if(S_ISDIR(file_stat.st_mode)) {
 
         //Lock the count
         pthread_mutex_lock(&count_lock);
@@ -160,7 +160,7 @@ void* search_dir(void* args) {
           //Lock the queue
           pthread_mutex_lock(&q_lock);
 
-          add_to_queue (queue, cur_path); //Add the directory to the queue
+          add_to_queue(queue, cur_path); //Add the directory to the queue
 
           //Unlock the queue
           pthread_mutex_unlock(&q_lock);
@@ -170,9 +170,12 @@ void* search_dir(void* args) {
           dir_thread_args[cur_thread]->file_name = cur_path;
 
           //Create a new thread for the directory
-          pthread_create(&(new_thread[cur_thread]), NULL, search_dir, dir_thread_args[cur_thread]);
-          cur_threads ++; 
-          cur_thread ++;
+          if(pthread_create(&(new_thread[cur_thread]), NULL, search_dir, dir_thread_args[cur_thread]) != 0) {
+            perror("Error in pthread_create");
+            exit(2);
+          }
+          cur_threads++; 
+          cur_thread++;
         } //Close the if/else on count check
 
         //Unlock the count
@@ -221,7 +224,10 @@ void* search_dir(void* args) {
 
   //Join all of the running threads and clean up
   for(int i = 0; i < cur_thread; i++) {
-    pthread_join(new_thread[i], NULL);
+    if(pthread_join(new_thread[i], NULL) != 0) {
+      perror("Error in pthread_join");
+      exit(2);
+    }
     free(dir_thread_args[i]->file_name);
     free(dir_thread_args[i]);
   }
@@ -230,7 +236,7 @@ void* search_dir(void* args) {
   pthread_mutex_lock(&count_lock);
 
   //Thread is now dead, decrement the count
-  cur_threads --;
+  cur_threads--;
 
   //Unlock the count
   pthread_mutex_unlock(&count_lock);
@@ -257,11 +263,11 @@ void start_search(char* file_name, char* str, int mult) {
   search_str = str;
 
   //Set up first directory search
-  thread_args_t* args = malloc (sizeof (thread_args_t));
+  thread_args_t* args = malloc(sizeof(thread_args_t));
   args->file_name = file_name;
 
   //Search the directory
-  search_dir (args);
+  search_dir(args);
 
   //Clean up
   free(args); 
@@ -314,7 +320,7 @@ int main(int argc, char** argv) {
   }
 	
   //IF WE HAVE 3 ARGUMENTS, WE'RE RUNNING IN TEST MODE
-  if(argc == 3) {
+  if (argc == 3) {
     
     //Set up and start the clock
     int time = 0;
@@ -336,7 +342,7 @@ int main(int argc, char** argv) {
     }
     
     //Print the average time
-    printf ("Avg. time (ms) for %s : %d\n", argv[2],time/100);
+    printf("Avg. time (ms) for %s : %d\n", argv[2],time/100);
     return 0;
   } else {
     
