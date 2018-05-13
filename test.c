@@ -13,10 +13,10 @@
 #include "pfs.h"
 
   
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
 
   //Take in the command line argument for the search term  
-  if(argc != 2){
+  if(argc != 2) {
     fprintf(stderr, "Usage: %s <search term>\n", argv[0]);
     exit(EXIT_FAILURE);
   }
@@ -37,7 +37,7 @@ int main(int argc, char** argv){
   int linear = 0;
 
   //Run the test 50 times
-  for(int i = 0; i < 50; i++){
+  for(int i = 0; i < 50; i++) {
     //Get the time
     clock_t start = clock();
 
@@ -77,6 +77,7 @@ int main(int argc, char** argv){
     /* linear += diff * 1000 / CLOCKS_PER_SEC; */
     
   }
+  
   //Print the results to the terminal
   printf("one: %d\n", one/50);
   printf("two: %d\n", two/50);
