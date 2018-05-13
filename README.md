@@ -13,7 +13,7 @@ pfs is only designed to work on unmodded linux binaries
 
 #__________________________________________________________________________________________
 
-In order to use the program, call pfs from the directory you want to search using the format ```pfs <search_str>"``` where search_str is the substring you want to find.
+In order to use the program, call pfs from the directory you want to search using the format ```pfs <search_str>"``` where <search_str> is the substring you want to find.
 
 For example, running ```./pfs pfs``` inside the cs213-grinnell-parallel-search file would print:  
 
@@ -32,4 +32,5 @@ All commits outside of class time were individual programming.
 
 #__________________________________________________________________________________________
 
-Run time tests can be run on pfs by using the command ```pfs <search_str> <threads_per_core>``` which will result in ```pfs <search_str>``` being run 100 times with max_threads being calculated by multiplying the number of cores in the machine by <threads_per_core>, then printing the average time it took the function to run once. If a search with only one thread is desired, run ```pfs <search_str> <l>```
+Run time tests can be run on pfs by using the command ```pfs <search_str> <threads_per_core>``` where <threads_per_core> is either the number of threads you want run on each core, or l for a linear search.    
+This call will result in ```pfs <search_str>``` being run 100 times with max_threads being calculated by multiplying the number of cores in the machine by <threads_per_core>, then printing the average time it took the function to run once.
