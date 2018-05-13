@@ -338,6 +338,6 @@ int main(int argc, char** argv){
   
 	} else{
 		//IF WE HAVE 2 ARGUMENTS, WE RUN IN NORMAL MODE
-		start_search(".", argv[1], 2);//Replace with actual ideal multiplier
+		start_search(".", argv[1], 8);//Replace with actual ideal multiplier
 	}
 }
